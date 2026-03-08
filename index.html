@@ -317,7 +317,8 @@
     const data = encodeURIComponent('\n' + bullets);
     const filepath = encodeURIComponent('Dailynote/' + dateStr);
 
-    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&data=${data}&mode=append`;
+    const heading = encodeURIComponent('Raw');
+    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
 
     showToast();
     window.location.href = uri;

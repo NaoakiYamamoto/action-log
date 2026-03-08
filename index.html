@@ -316,9 +316,8 @@
     const bullets = lines.map(l => `- ${l.trim()}`).join('\n');
     const data = encodeURIComponent('\n' + bullets);
     const filepath = encodeURIComponent(dateStr);
-    const heading = encodeURIComponent('Raw');
 
-    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
+    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&data=${data}&mode=append`;
 
     showToast();
     window.location.href = uri;

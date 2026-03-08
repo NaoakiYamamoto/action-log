@@ -315,7 +315,7 @@
     const lines = val.split('\n').filter(l => l.trim());
     const bullets = lines.map(l => `- ${l.trim()}`).join('\n');
     const data = encodeURIComponent('\n' + bullets);
-    const filepath = encodeURIComponent(dateStr);
+    const filepath = encodeURIComponent('Dailynote/' + dateStr);
 
     const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&data=${data}&mode=append`;
 

@@ -2,21 +2,29 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Action Log</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Impulse Reset</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap');
 
   :root {
     --bg: #0f0f0f;
     --surface: #1a1a1a;
+    --surface-2: #232323;
     --border: #2a2a2a;
     --accent: #c8f060;
+    --accent-dim: #b0d840;
+    --warn: #ff8a5b;
     --text: #e8e8e8;
     --muted: #666;
+    --muted-2: #888;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
 
   body {
     background: var(--bg);
@@ -25,7 +33,7 @@
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    padding: 0;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 
   header {
@@ -50,18 +58,55 @@
     color: var(--text);
   }
 
+  .mode-toggle {
+    display: flex;
+    margin: 18px 24px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted-2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .mode-btn.active {
+    background: var(--surface-2);
+    color: var(--accent);
+  }
+
   .section-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.2em;
     color: var(--muted);
     text-transform: uppercase;
-    padding: 24px 24px 10px;
+    padding: 22px 24px 10px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 24px;
   }
 
   .input-area {
     flex: 1;
-    padding: 0 24px;
+    padding: 16px 24px 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -89,6 +134,12 @@
     border-color: var(--accent);
   }
 
+  textarea:disabled {
+    background: var(--surface-2);
+    color: var(--muted-2);
+    cursor: default;
+  }
+
   textarea::placeholder {
     color: var(--muted);
     font-style: italic;
@@ -109,14 +160,55 @@
     color: var(--accent);
   }
 
+  .timer-card {
+    margin: 16px 24px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 18px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timer-card.visible { display: flex; }
+  .timer-card.ready { border-color: var(--accent); }
+
+  .timer-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .timer-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 36px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timer-card.ready .timer-display { color: var(--accent); }
+
+  .timer-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
   .actions {
-    padding: 20px 24px 40px;
+    padding: 18px 24px 24px;
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
-  button {
+  button.action {
     width: 100%;
     padding: 16px;
     border-radius: 12px;
@@ -135,10 +227,7 @@
     color: #0f0f0f;
   }
 
-  .btn-primary:active {
-    transform: scale(0.98);
-    background: #b0d840;
-  }
+  .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
 
   .btn-primary:disabled {
     background: var(--border);
@@ -149,64 +238,74 @@
 
   .btn-secondary {
     background: var(--surface);
-    color: var(--muted);
+    color: var(--muted-2);
     border: 1px solid var(--border);
     font-size: 13px;
   }
 
-  .btn-secondary:active {
-    background: var(--border);
-  }
+  .btn-secondary:active { background: var(--border); }
 
-  .preview {
-    margin: 0 24px;
-    background: var(--surface);
+  .btn-warn {
+    background: transparent;
+    color: var(--warn);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: none;
+    font-size: 13px;
   }
 
-  .preview.visible {
-    display: block;
+  .btn-warn:active { background: rgba(255, 138, 91, 0.08); }
+
+  .history {
+    margin: 8px 24px 0;
+    padding-bottom: 8px;
   }
 
-  .preview-title {
+  .history-title {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.2em;
     color: var(--muted);
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
-  .preview-items {
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
 
-  .preview-item {
-    font-size: 14px;
+  .history-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .history-meta .mode-tag {
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .history-text {
+    font-size: 13px;
     color: var(--text);
     font-weight: 300;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
-  .preview-item::before {
-    content: '–';
-    color: var(--accent);
+  .history-empty {
     font-family: 'DM Mono', monospace;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 0 24px 0;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    padding: 12px;
   }
 
   .toast {
@@ -225,48 +324,110 @@
     z-index: 100;
   }
 
-  .toast.show {
-    transform: translateX(-50%) translateY(0);
-  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <header>
   <div class="date-label" id="dateLabel"></div>
-  <h1>Raw Log</h1>
+  <h1>Impulse Reset</h1>
 </header>
 
-<div class="section-label">→ ## Raw · WHLSNDFLS</div>
-
-<div class="divider"></div>
-
-<div class="input-area" style="margin-top:16px;">
-  <textarea id="input" placeholder="Write freely. Action / Perception / Thought…" rows="6"></textarea>
-
-  <div class="hint">
-    <span>Action</span> / <span>Perception</span> / <span>Thought</span><br>
-    それぞれ最低1回含むと◎ · 4–7 sentences
-  </div>
+<div class="mode-toggle" role="tablist">
+  <button class="mode-btn" data-mode="habit" role="tab">Habit</button>
+  <button class="mode-btn" data-mode="shopping" role="tab">Shopping</button>
 </div>
 
-<div class="preview" id="preview">
-  <div class="preview-title">Preview</div>
-  <div class="preview-items" id="previewItems"></div>
+<div class="section-label" id="sectionLabel"></div>
+<div class="divider"></div>
+
+<div class="input-area">
+  <textarea id="input" rows="6"></textarea>
+  <div class="hint" id="hint"></div>
+</div>
+
+<div class="timer-card" id="timerCard">
+  <div class="timer-label" id="timerLabelText">20-min hold</div>
+  <div class="timer-display" id="timerDisplay">20:00</div>
+  <div class="timer-sub" id="timerSub">urge will pass</div>
 </div>
 
 <div class="actions">
-  <button class="btn-primary" id="sendBtn" disabled onclick="openInObsidian()">
-    Add to Obsidian
-  </button>
-  <button class="btn-secondary" onclick="clearInput()">Clear</button>
+  <button class="action btn-primary" id="primaryBtn" disabled>Start 20-min hold</button>
+  <button class="action btn-secondary" id="secondaryBtn" style="display:none;">Clear</button>
+</div>
+
+<div class="history">
+  <div class="history-title">Recent · last 3</div>
+  <div id="historyList"></div>
 </div>
 
 <div class="toast" id="toast">Opening Obsidian…</div>
 
 <script>
-  const VAULT = 'WHLSNDFLS';
+  // ---------- Config ----------
+  const VAULT = 'LifeOS_mobile';
+  const HOLD_MS = 20 * 60 * 1000; // 20 minutes
+  const STORAGE_KEY = 'hr_v4';
+  const HISTORY_MAX = 3;
 
+  const MODE_CONFIG = {
+    habit: {
+      label: 'Habit',
+      heading: 'Habit',
+      sectionLabel: '→ ## Habit · LifeOS_mobile',
+      placeholder: '何の衝動？ いま何を感じてる？',
+      hint: '<span>What</span> / <span>Where</span> / <span>Body</span><br>衝動の対象・場面・体感を1行ずつ',
+    },
+    shopping: {
+      label: 'Shopping',
+      heading: 'Shopping',
+      sectionLabel: '→ ## Shopping · LifeOS_mobile · Week1 Observe',
+      placeholder: '何が欲しい？ なぜ今？',
+      hint: '<span>Item</span> / <span>Trigger</span> / <span>Need</span><br>買わずに記録だけ・1行ずつ',
+    },
+  };
+
+  // ---------- State ----------
+  function defaultState() {
+    return {
+      draft: { habit: '', shopping: '' },
+      timer: { habit: null, shopping: null },
+      lastMode: 'habit',
+      history: [],
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      const s = defaultState();
+      if (parsed && typeof parsed === 'object') {
+        if (parsed.draft) Object.assign(s.draft, parsed.draft);
+        if (parsed.timer) Object.assign(s.timer, parsed.timer);
+        if (parsed.lastMode === 'habit' || parsed.lastMode === 'shopping') s.lastMode = parsed.lastMode;
+        if (Array.isArray(parsed.history)) s.history = parsed.history.slice(0, HISTORY_MAX);
+      }
+      return s;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { /* quota — ignore */ }
+  }
+
+  let state = loadState();
+  let currentMode = state.lastMode;
+  let tickHandle = null;
+
+  // ---------- Date helpers ----------
   function getToday() {
     const now = new Date();
     const y = now.getFullYear();
@@ -281,60 +442,264 @@
     return `${dateStr} · ${days[d.getDay()]}`;
   }
 
-  const dateStr = getToday();
-  document.getElementById('dateLabel').textContent = formatDateLabel(dateStr);
+  function formatRemaining(ms) {
+    const total = Math.max(0, Math.ceil(ms / 1000));
+    const mm = String(Math.floor(total / 60)).padStart(2, '0');
+    const ss = String(total % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
+  }
 
-  const textarea = document.getElementById('input');
-  const sendBtn = document.getElementById('sendBtn');
-  const preview = document.getElementById('preview');
-  const previewItems = document.getElementById('previewItems');
+  function formatHistoryTime(ts) {
+    const d = new Date(ts);
+    const today = new Date();
+    const sameDay = d.toDateString() === today.toDateString();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    if (sameDay) return `${hh}:${mm}`;
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${mo}-${dd} ${hh}:${mm}`;
+  }
 
-  textarea.addEventListener('input', () => {
-    const val = textarea.value.trim();
-    sendBtn.disabled = val.length === 0;
+  // ---------- DOM refs ----------
+  const dateLabelEl = document.getElementById('dateLabel');
+  const sectionLabelEl = document.getElementById('sectionLabel');
+  const textareaEl = document.getElementById('input');
+  const hintEl = document.getElementById('hint');
+  const timerCardEl = document.getElementById('timerCard');
+  const timerDisplayEl = document.getElementById('timerDisplay');
+  const timerSubEl = document.getElementById('timerSub');
+  const timerLabelEl = document.getElementById('timerLabelText');
+  const primaryBtnEl = document.getElementById('primaryBtn');
+  const secondaryBtnEl = document.getElementById('secondaryBtn');
+  const historyListEl = document.getElementById('historyList');
+  const modeBtns = Array.from(document.querySelectorAll('.mode-btn'));
 
-    if (val.length > 0) {
-      const lines = val.split('\n').filter(l => l.trim());
-      previewItems.innerHTML = lines.map(l =>
-        `<div class="preview-item">${escapeHtml(l.trim())}</div>`
-      ).join('');
-      preview.classList.add('visible');
-    } else {
-      preview.classList.remove('visible');
+  dateLabelEl.textContent = formatDateLabel(getToday());
+
+  // ---------- Phase ----------
+  // Returns 'idle' | 'holding' | 'ready' for the active mode
+  function currentPhase() {
+    const t = state.timer[currentMode];
+    if (!t) return 'idle';
+    const remaining = HOLD_MS - (Date.now() - t.startedAt);
+    return remaining > 0 ? 'holding' : 'ready';
+  }
+
+  // ---------- Render ----------
+  function render() {
+    const cfg = MODE_CONFIG[currentMode];
+    sectionLabelEl.textContent = cfg.sectionLabel;
+    textareaEl.placeholder = cfg.placeholder;
+    hintEl.innerHTML = cfg.hint;
+
+    modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === currentMode));
+
+    const phase = currentPhase();
+    const t = state.timer[currentMode];
+
+    if (phase === 'idle') {
+      textareaEl.value = state.draft[currentMode] || '';
+      textareaEl.disabled = false;
+      timerCardEl.classList.remove('visible', 'ready');
+      primaryBtnEl.textContent = 'Start 20-min hold';
+      primaryBtnEl.disabled = !textareaEl.value.trim();
+      primaryBtnEl.dataset.action = 'start';
+      primaryBtnEl.className = 'action btn-primary';
+      secondaryBtnEl.style.display = textareaEl.value.trim() ? 'block' : 'none';
+      secondaryBtnEl.textContent = 'Clear';
+      secondaryBtnEl.className = 'action btn-secondary';
+      secondaryBtnEl.dataset.action = 'clear';
+    } else if (phase === 'holding') {
+      textareaEl.value = t.text;
+      textareaEl.disabled = true;
+      timerCardEl.classList.add('visible');
+      timerCardEl.classList.remove('ready');
+      timerLabelEl.textContent = '20-min hold · ' + cfg.label;
+      timerDisplayEl.textContent = formatRemaining(HOLD_MS - (Date.now() - t.startedAt));
+      timerSubEl.textContent = 'urge will pass';
+      primaryBtnEl.textContent = 'Holding…';
+      primaryBtnEl.disabled = true;
+      primaryBtnEl.dataset.action = 'noop';
+      primaryBtnEl.className = 'action btn-primary';
+      secondaryBtnEl.style.display = 'block';
+      secondaryBtnEl.textContent = 'Cancel hold';
+      secondaryBtnEl.className = 'action btn-warn';
+      secondaryBtnEl.dataset.action = 'cancel';
+    } else { // ready
+      textareaEl.value = t.text;
+      textareaEl.disabled = false;
+      timerCardEl.classList.add('visible', 'ready');
+      timerLabelEl.textContent = 'Hold complete · ' + cfg.label;
+      timerDisplayEl.textContent = '00:00';
+      timerSubEl.textContent = 'still want to act on it?';
+      primaryBtnEl.textContent = `Send to Obsidian · ## ${cfg.heading}`;
+      primaryBtnEl.disabled = !textareaEl.value.trim();
+      primaryBtnEl.dataset.action = 'send';
+      primaryBtnEl.className = 'action btn-primary';
+      secondaryBtnEl.style.display = 'block';
+      secondaryBtnEl.textContent = 'Discard';
+      secondaryBtnEl.className = 'action btn-warn';
+      secondaryBtnEl.dataset.action = 'discard';
+    }
+
+    renderHistory();
+    manageTick();
+  }
+
+  function renderHistory() {
+    if (state.history.length === 0) {
+      historyListEl.innerHTML = '<div class="history-empty">no recent sends</div>';
+      return;
+    }
+    historyListEl.innerHTML = state.history.map(h => {
+      const mode = h.mode === 'shopping' ? 'shopping' : 'habit';
+      return `
+        <div class="history-item">
+          <div class="history-meta"><span class="mode-tag">${mode}</span> · ${formatHistoryTime(h.sentAt)}</div>
+          <div class="history-text">${escapeHtml(h.text)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ---------- Tick ----------
+  function manageTick() {
+    if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
+    if (currentPhase() !== 'holding') return;
+    tickHandle = setInterval(() => {
+      const t = state.timer[currentMode];
+      if (!t) { render(); return; }
+      const remaining = HOLD_MS - (Date.now() - t.startedAt);
+      if (remaining <= 0) {
+        clearInterval(tickHandle);
+        tickHandle = null;
+        render(); // transitions to 'ready'
+        return;
+      }
+      timerDisplayEl.textContent = formatRemaining(remaining);
+    }, 1000);
+  }
+
+  // ---------- Actions ----------
+  function startHold() {
+    const text = textareaEl.value.trim();
+    if (!text) return;
+    state.timer[currentMode] = { startedAt: Date.now(), text };
+    state.draft[currentMode] = '';
+    saveState();
+    render();
+  }
+
+  function cancelHold() {
+    const t = state.timer[currentMode];
+    if (!t) return;
+    if (!confirm('20分待機をキャンセルします。テキストは下書きに戻ります。OK?')) return;
+    state.draft[currentMode] = t.text;
+    state.timer[currentMode] = null;
+    saveState();
+    render();
+  }
+
+  function discard() {
+    if (!confirm('このログを破棄します。OK?')) return;
+    state.timer[currentMode] = null;
+    state.draft[currentMode] = '';
+    saveState();
+    render();
+  }
+
+  function clearDraft() {
+    state.draft[currentMode] = '';
+    saveState();
+    render();
+  }
+
+  function send() {
+    const t = state.timer[currentMode];
+    const text = textareaEl.value.trim();
+    if (!t || !text) return;
+
+    const cfg = MODE_CONFIG[currentMode];
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const bullets = lines.map(l => `- ${l}`).join('\n');
+    const data = encodeURIComponent('\n' + bullets);
+    const filepath = encodeURIComponent('Dailynote/' + getToday());
+    const heading = encodeURIComponent(cfg.heading);
+    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
+
+    state.history.unshift({ mode: currentMode, text, sentAt: Date.now() });
+    state.history = state.history.slice(0, HISTORY_MAX);
+    state.timer[currentMode] = null;
+    state.draft[currentMode] = '';
+    saveState();
+
+    showToast('Opening Obsidian…');
+    window.location.href = uri;
+    setTimeout(render, 300);
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // ---------- Events ----------
+  modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.dataset.mode;
+      if (next === currentMode) return;
+      // persist current draft before switch
+      if (currentPhase() === 'idle') {
+        state.draft[currentMode] = textareaEl.value;
+      }
+      currentMode = next;
+      state.lastMode = next;
+      saveState();
+      render();
+    });
+  });
+
+  textareaEl.addEventListener('input', () => {
+    const phase = currentPhase();
+    if (phase === 'idle') {
+      state.draft[currentMode] = textareaEl.value;
+      saveState();
+      primaryBtnEl.disabled = !textareaEl.value.trim();
+      secondaryBtnEl.style.display = textareaEl.value.trim() ? 'block' : 'none';
+    } else if (phase === 'ready') {
+      state.timer[currentMode].text = textareaEl.value;
+      saveState();
+      primaryBtnEl.disabled = !textareaEl.value.trim();
     }
   });
 
-  function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
+  primaryBtnEl.addEventListener('click', () => {
+    const action = primaryBtnEl.dataset.action;
+    if (action === 'start') startHold();
+    else if (action === 'send') send();
+  });
 
-  function openInObsidian() {
-    const val = textarea.value.trim();
-    if (!val) return;
+  secondaryBtnEl.addEventListener('click', () => {
+    const action = secondaryBtnEl.dataset.action;
+    if (action === 'clear') clearDraft();
+    else if (action === 'cancel') cancelHold();
+    else if (action === 'discard') discard();
+  });
 
-    const lines = val.split('\n').filter(l => l.trim());
-    const bullets = lines.map(l => `- ${l.trim()}`).join('\n');
-    const data = encodeURIComponent('\n' + bullets);
-    const filepath = encodeURIComponent('Dailynote/' + dateStr);
+  // Re-render when tab becomes visible again (timer may have completed)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) render();
+  });
 
-    const heading = encodeURIComponent('Raw');
-    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
-
-    showToast();
-    window.location.href = uri;
-  }
-
-  function clearInput() {
-    textarea.value = '';
-    sendBtn.disabled = true;
-    preview.classList.remove('visible');
-  }
-
-  function showToast() {
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
+  // ---------- Init ----------
+  render();
 </script>
 </body>
 </html>

@@ -726,7 +726,7 @@
   <div class="home-streak">
     <div class="num" id="streakNum">0</div>
     <div class="label">days clean</div>
-    <div class="ja">relapse からの経過日数</div>
+    <div class="ja">since last relapse</div>
   </div>
 
   <div class="home-stats">
@@ -748,7 +748,7 @@
   <div class="home-cta">
     <button class="btn-start" id="startBtn">
       Start
-      <span class="ja">衝動が来た</span>
+      <span class="ja">when the urge hits</span>
     </button>
   </div>
 
@@ -778,11 +778,11 @@
     <button class="back" data-action="back-trigger">‹</button>
     <div>
       <div class="title">Trigger</div>
-      <div class="ja">強度とトリガーを記録</div>
+      <div class="ja">log intensity and triggers</div>
     </div>
   </div>
   <div class="scroll-area">
-    <div class="section-h">Intensity <span class="ja" style="display:inline; margin-left:8px;">強度</span></div>
+    <div class="section-h">Intensity <span class="ja" style="display:inline; margin-left:8px;">1 = mild · 10 = overwhelming</span></div>
     <div class="intensity-display">
       <span class="v" id="intensityValue">5</span><span class="max">/10</span>
       <div class="l">tap and slide</div>
@@ -792,7 +792,7 @@
       <span>1</span><span>5</span><span>10</span>
     </div>
 
-    <div class="section-h">What's behind it? <span class="ja" style="display:inline; margin-left:8px;">トリガー</span></div>
+    <div class="section-h">What's behind it? <span class="ja" style="display:inline; margin-left:8px;">pick one or more</span></div>
     <div class="tag-grid" id="tagGrid"></div>
   </div>
   <div class="bottom-actions">
@@ -806,14 +806,14 @@
     <button class="back" data-action="back-task">‹</button>
     <div>
       <div class="title">Redirect</div>
-      <div class="ja">気を逸らす行動を選ぶ</div>
+      <div class="ja">break the momentum</div>
     </div>
   </div>
   <div class="scroll-area">
     <div class="task-grid" id="taskGrid"></div>
   </div>
   <div class="bottom-actions">
-    <button class="btn-skip" id="taskSkipBtn">skip · 何もしない</button>
+    <button class="btn-skip" id="taskSkipBtn">skip · do nothing</button>
   </div>
 </div>
 
@@ -823,22 +823,22 @@
     <button class="back" data-action="back-outcome">‹</button>
     <div>
       <div class="title">Outcome</div>
-      <div class="ja">どうなった？</div>
+      <div class="ja">what happened?</div>
     </div>
   </div>
   <div class="scroll-area">
     <div class="outcome-buttons">
       <button class="btn-outcome btn-resolved" id="resolvedBtn">
         <div class="en">Resolved</div>
-        <div class="ja">流せた</div>
+        <div class="ja">let it pass</div>
       </button>
       <button class="btn-outcome btn-relapsed" id="relapsedBtn">
         <div class="en">Relapsed</div>
-        <div class="ja">やってしまった</div>
+        <div class="ja">acted on it</div>
       </button>
     </div>
     <div class="memo-area">
-      <div class="section-h">Note <span class="ja" style="display:inline; margin-left:8px;">任意メモ・1行</span></div>
+      <div class="section-h">Note <span class="ja" style="display:inline; margin-left:8px;">optional, one line</span></div>
       <textarea id="noteInput" rows="2" placeholder="Optional memo…" maxlength="200"></textarea>
     </div>
   </div>
@@ -849,7 +849,7 @@
   <div class="screen-header">
     <div>
       <div class="title">Log</div>
-      <div class="ja">crisis 履歴・新しい順</div>
+      <div class="ja">most recent first</div>
     </div>
   </div>
   <div class="scroll-area">
@@ -867,7 +867,7 @@
   <div class="screen-header">
     <div>
       <div class="title">Stats</div>
-      <div class="ja">サマリ</div>
+      <div class="ja">summary</div>
     </div>
   </div>
   <div class="scroll-area">
@@ -886,7 +886,7 @@
         <div class="l">avg intensity</div>
       </div>
     </div>
-    <div class="section-h">Trigger Frequency <span class="ja" style="display:inline; margin-left:8px;">トリガー頻度</span></div>
+    <div class="section-h">Trigger Frequency <span class="ja" style="display:inline; margin-left:8px;">tags by count</span></div>
     <div id="triggerBars"></div>
   </div>
   <div class="bottom-nav">
@@ -907,23 +907,23 @@
   const LEGACY_KEY = 'hr_v4';
 
   const TRIGGER_TAGS = [
-    { key: 'boredom',    en: 'Boredom',    ja: '退屈' },
-    { key: 'fatigue',    en: 'Fatigue',    ja: '疲労' },
-    { key: 'loneliness', en: 'Loneliness', ja: '孤独' },
-    { key: 'stress',     en: 'Stress',     ja: 'ストレス' },
-    { key: 'sns',        en: 'SNS',        ja: 'SNS 誘発' },
-    { key: 'idle-time',  en: 'Idle Time',  ja: '暇つぶし' },
-    { key: 'nighttime',  en: 'Nighttime',  ja: '就寝前' },
+    { key: 'boredom',    en: 'Boredom' },
+    { key: 'fatigue',    en: 'Fatigue' },
+    { key: 'loneliness', en: 'Loneliness' },
+    { key: 'stress',     en: 'Stress' },
+    { key: 'sns',        en: 'SNS' },
+    { key: 'idle-time',  en: 'Idle Time' },
+    { key: 'nighttime',  en: 'Nighttime' },
   ];
 
   const REDIRECT_TASKS = [
-    { key: 'walking',  en: 'Walking',          ja: '5 分散歩' },
-    { key: 'water',    en: 'Water',            ja: '水を 1 杯' },
-    { key: 'tea',      en: 'Tea',              ja: 'お茶を淹れる' },
-    { key: 'small',    en: '5min Small Task',  ja: '5 分で 1 つだけ片づける' },
-    { key: 'stretch',  en: 'Stretch',          ja: 'ストレッチ' },
-    { key: 'wash',     en: 'Wash Face',        ja: '冷水で顔を洗う' },
-    { key: 'wrapup',   en: 'Wrap up Note',     ja: '振り返りメモを書く' },
+    { key: 'walking', en: 'Walking',         sub: '5 min walk' },
+    { key: 'water',   en: 'Water',           sub: '1 glass' },
+    { key: 'tea',     en: 'Tea',             sub: 'make a cup' },
+    { key: 'small',   en: '5min Small Task', sub: 'do one thing' },
+    { key: 'stretch', en: 'Stretch',         sub: 'loosen up' },
+    { key: 'wash',    en: 'Wash Face',       sub: 'cold water' },
+    { key: 'wrapup',  en: 'Wrap up Note',    sub: 'journal it' },
   ];
 
   const BREATH_CYCLES = 3;
@@ -1152,7 +1152,6 @@
     grid.innerHTML = TRIGGER_TAGS.map(t => `
       <button class="tag-chip ${draft.triggers.includes(t.key)?'active':''}" data-tag="${t.key}">
         <div class="en">${t.en}</div>
-        <div class="ja">${t.ja}</div>
       </button>
     `).join('');
 
@@ -1181,7 +1180,7 @@
     grid.innerHTML = REDIRECT_TASKS.map(t => `
       <button class="task-card" data-task="${t.key}">
         <div class="en">${t.en}</div>
-        <div class="ja">${t.ja}</div>
+        <div class="ja">${t.sub}</div>
       </button>
     `).join('');
   }
@@ -1391,7 +1390,7 @@
     b.addEventListener('click', () => {
       const a = b.dataset.action;
       if (a === 'back-trigger') {
-        if (confirm('Cancel this crisis? 衝動の記録を破棄します')) abortDraft();
+        if (confirm('Cancel this crisis? Draft will be discarded.')) abortDraft();
       } else if (a === 'back-task') {
         show('trigger');
       } else if (a === 'back-outcome') {

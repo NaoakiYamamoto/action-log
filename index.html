@@ -1242,7 +1242,7 @@
 
     const data = encodeURIComponent('\n' + body);
     const filepath = encodeURIComponent('Dailynote/' + dateStr);
-    const heading = encodeURIComponent('Habit');
+    const heading = encodeURIComponent('Raw');
     const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
     window.location.href = uri;
   }

@@ -1241,8 +1241,8 @@
     const body = c.note ? `${main}\n  > ${c.note}` : main;
 
     const data = encodeURIComponent('\n' + body);
-    const filepath = encodeURIComponent('Dailynote/' + dateStr);
-    const heading = encodeURIComponent('Raw');
+    const filepath = encodeURIComponent('10 Dailynote/' + dateStr);
+    const heading = encodeURIComponent('Notes');
     const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(VAULT)}&filepath=${filepath}&heading=${heading}&data=${data}&mode=append`;
     window.location.href = uri;
   }
